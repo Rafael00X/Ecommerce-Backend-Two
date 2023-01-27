@@ -19,7 +19,7 @@ public class Cart {
     private Integer cartId;
     @OneToOne
     private User user;
-    @OneToMany(mappedBy = "cart")
+    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<CartItem> cartItems;
     @Transient
