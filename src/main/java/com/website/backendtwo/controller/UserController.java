@@ -20,7 +20,7 @@ public class UserController {
 
     @PostMapping("/login")
     public User loginUser(@RequestBody User user) {
-        User existingUser = userService.registerUser(user);
+        User existingUser = userService.loginUser(user);
         if (existingUser != null) existingUser.setToken("user-token");
         return existingUser;
     }
