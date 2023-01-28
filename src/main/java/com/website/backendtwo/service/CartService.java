@@ -7,14 +7,11 @@ import com.website.backendtwo.repository.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Collectors;
-
 @Service
 public class CartService {
     @Autowired
     private CartRepository repository;
 
-    //TODO - findByUserUserId(userId)
     public Cart getCart(Integer userId) {
         Cart cart = repository.findByUserUserId(userId).orElse(addCart(userId));
         int total = 0;

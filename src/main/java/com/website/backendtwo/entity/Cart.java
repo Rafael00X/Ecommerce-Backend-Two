@@ -3,7 +3,6 @@ package com.website.backendtwo.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 

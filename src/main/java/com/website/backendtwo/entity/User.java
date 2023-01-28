@@ -3,6 +3,7 @@ package com.website.backendtwo.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.*;
 
 @Entity
@@ -17,4 +18,7 @@ public class User {
     private Integer userId;
     private String userName;
     private String password;
+    private String email;
+    @Transient
+    private String token;
 }
