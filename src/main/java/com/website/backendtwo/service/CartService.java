@@ -14,8 +14,8 @@ public class CartService {
     @Autowired
     private CartRepository repository;
 
-    public Cart getCart(User user) {
-        Cart cart = repository.findByUser(user).orElse(addCart(user));
+    public Cart getCartByUser(User user) {
+        Cart cart = repository.findByUser(user).orElse(addCartOfUser(user));
         if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
         int total = 0;
         for (CartItem cartItem: cart.getCartItems())
@@ -24,7 +24,18 @@ public class CartService {
         return cart;
     }
 
-    public Cart addCart(User user) {
+    public Cart getCartById(Integer cartId) {
+        Cart cart = repository.findById(cartId).orElse(null);
+        if (cart == null) return null;
+        if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
+        int total = 0;
+        for (CartItem cartItem: cart.getCartItems())
+            total += cartItem.getSellingPrice() * cartItem.getQuantity();
+        cart.setTotalAmount(total);
+        return cart;
+    }
+
+    private Cart addCartOfUser(User user) {
         Cart cart = new Cart();
         cart.setUser(user);
         return repository.save(cart);

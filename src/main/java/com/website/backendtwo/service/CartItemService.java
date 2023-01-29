@@ -8,8 +8,8 @@ public class CartItemService {
     @Autowired
     private CartItemRepository repository;
 
-    public void addCartItem(CartItem cartItem) {
-        repository.save(cartItem);
+    public CartItem addCartItem(CartItem cartItem) {
+        return repository.save(cartItem);
     }
 
     public void updateCartItem(CartItem cartItem) {
