@@ -7,13 +7,16 @@ import com.website.backendtwo.repository.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 public class CartService {
     @Autowired
     private CartRepository repository;
 
-    public Cart getCart(Integer userId) {
-        Cart cart = repository.findByUserUserId(userId).orElse(addCart(userId));
+    public Cart getCart(User user) {
+        Cart cart = repository.findByUser(user).orElse(addCart(user));
+        if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
         int total = 0;
         for (CartItem cartItem: cart.getCartItems())
             total += cartItem.getSellingPrice() * cartItem.getQuantity();
@@ -21,10 +24,9 @@ public class CartService {
         return cart;
     }
 
-    public Cart addCart(Integer userId) {
+    public Cart addCart(User user) {
         Cart cart = new Cart();
-        cart.setUser(new User());
-        cart.getUser().setUserId(userId);
+        cart.setUser(user);
         return repository.save(cart);
     }
 }
