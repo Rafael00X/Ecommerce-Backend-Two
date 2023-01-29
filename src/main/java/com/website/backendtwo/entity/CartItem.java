@@ -21,4 +21,9 @@ public class CartItem {
     @ManyToOne
     @JsonBackReference
     private Cart cart;
+
+    public int calculateAmount() {
+        if (product == null || product.getSellingPrice() == null) return 0;
+        return quantity * product.getSellingPrice();
+    }
 }

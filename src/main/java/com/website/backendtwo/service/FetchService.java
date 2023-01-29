@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class FetchService {
     private RestTemplate restTemplate = new RestTemplate();
 
     public List<Product> getProductsById(List<Integer> ids) {
+        if (ids == null || ids.size() == 0) return new ArrayList<>();
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<List<Integer>> httpEntity = new HttpEntity<>(ids, httpHeaders);
         Product[] products = restTemplate.postForObject(URL + "/test/products", httpEntity, Product[].class);
