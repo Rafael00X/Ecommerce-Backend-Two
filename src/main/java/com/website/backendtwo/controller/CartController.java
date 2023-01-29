@@ -22,8 +22,9 @@ public class CartController {
         return cartService.getCartByUser(user);
     }
 
+    // TODO - replace cartItem with productId
     @PostMapping("/cart/add-item")
-    public Cart addItemToCart(@RequestBody ObjectNode objectNode) {
+    public void addItemToCart(@RequestBody ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();
         User user;
         CartItem cartItem;
@@ -36,8 +37,6 @@ public class CartController {
         Cart cart = cartService.getCartByUser(user);
         cartItem.setCart(cart);
         cartItemService.addCartItem(cartItem);
-        cart.setTotalAmount(cart.getTotalAmount() + cartItem.getSellingPrice() * cartItem.getQuantity());
-        return cart;
     }
 
 

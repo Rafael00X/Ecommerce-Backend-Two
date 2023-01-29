@@ -1,10 +1,8 @@
 package com.website.backendtwo.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import com.website.backendtwo.entity.embeddable.Product;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -17,9 +15,8 @@ public class CartItem {
     @Id
     @GeneratedValue
     private Integer id;
-    private Integer productId;
-    private String productName;
-    private Integer sellingPrice;
+    @Embedded
+    private Product product;
     private Integer quantity;
     @ManyToOne
     @JsonBackReference

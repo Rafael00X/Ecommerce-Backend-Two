@@ -14,23 +14,25 @@ public class CartService {
     @Autowired
     private CartRepository repository;
 
+    // TODO - fetch Product details from other RestAPI
     public Cart getCartByUser(User user) {
         Cart cart = repository.findByUser(user).orElse(addCartOfUser(user));
         if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
         int total = 0;
         for (CartItem cartItem: cart.getCartItems())
-            total += cartItem.getSellingPrice() * cartItem.getQuantity();
+            total += cartItem.getProduct().getSellingPrice() * cartItem.getQuantity();
         cart.setTotalAmount(total);
         return cart;
     }
 
+    // TODO - fetch Product details from other RestAPI
     public Cart getCartById(Integer cartId) {
         Cart cart = repository.findById(cartId).orElse(null);
         if (cart == null) return null;
         if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
         int total = 0;
         for (CartItem cartItem: cart.getCartItems())
-            total += cartItem.getSellingPrice() * cartItem.getQuantity();
+            total += cartItem.getProduct().getSellingPrice() * cartItem.getQuantity();
         cart.setTotalAmount(total);
         return cart;
     }
