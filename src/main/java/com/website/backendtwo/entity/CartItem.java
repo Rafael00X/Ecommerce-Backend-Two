@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"cart_cart_id", "productId"})})
 @Getter
 @Setter
 @AllArgsConstructor

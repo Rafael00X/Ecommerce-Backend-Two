@@ -17,5 +17,7 @@ public class Product {
     @Transient
     private String imageUrl;
     @Transient
+    private Integer markedPrice;
+    @Transient
     private Integer sellingPrice;
 }
