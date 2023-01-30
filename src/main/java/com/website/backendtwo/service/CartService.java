@@ -19,13 +19,12 @@ public class CartService {
     @Autowired
     private FetchService fetchService;
 
-    // TODO - fetch Product details from other RestAPI
-    public Cart getCartByUser(User user) {
-        Cart cart = repository.findByUser(user).orElse(addCartOfUser(user));
+    private Cart initializeCart(Cart cart) {
+        if (cart == null) throw new RuntimeException("Cannot retrieve cart");
         if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
         List<CartItem> cartItems = cart.getCartItems();
         List<Integer> ids = cartItems.stream()
-                .mapToInt(CartItem::getId)
+                .mapToInt((item) -> item.getProduct().getProductId())
                 .boxed()
                 .toList();
         List<Product> products = fetchService.getProductsById(ids);
@@ -34,8 +33,6 @@ public class CartService {
         for (int i = 0; i < cartItems.size(); i++) {
             Product product = products.get(i);
             CartItem cartItem = cartItems.get(i);
-            System.out.println(product);
-            System.out.println(cartItem.getProduct());
             if (product.getProductId().intValue() != cartItem.getProduct().getProductId().intValue())
                 throw new FailedRequestException("Invalid data from server");
             cartItem.setProduct(product);
@@ -45,19 +42,17 @@ public class CartService {
         return cart;
     }
 
-    // TODO - fetch Product details from other RestAPI
-    public Cart getCartById(Integer cartId) {
-        Cart cart = repository.findById(cartId).orElse(null);
-        if (cart == null) return null;
-        if (cart.getCartItems() == null) cart.setCartItems(new ArrayList<>());
-        int total = 0;
-        for (CartItem cartItem: cart.getCartItems())
-            total += cartItem.getProduct().getSellingPrice() * cartItem.getQuantity();
-        cart.setTotalAmount(total);
-        return cart;
+    public Cart getCartByUser(User user) {
+        Cart cart = repository.findByUser(user).orElse(null);
+        return initializeCart(cart);
     }
 
-    private Cart addCartOfUser(User user) {
+    public Cart getCartById(Integer cartId) {
+        Cart cart = repository.findById(cartId).orElse(null);
+        return initializeCart(cart);
+    }
+
+    public Cart addCartOfUser(User user) {
         Cart cart = new Cart();
         cart.setUser(user);
         return repository.save(cart);
