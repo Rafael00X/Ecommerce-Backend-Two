@@ -45,6 +45,7 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
+    // TODO - cartItemService.removeCartItem() not getting flushed before cartService.getCartByUser()
     @PostMapping("/cart/remove-item")
     public ResponseEntity<Cart> removeItemFromCart(@RequestBody ObjectNode objectNode) {
         ObjectMapper mapper = new ObjectMapper();
@@ -58,6 +59,39 @@ public class CartController {
         }
         cartItemService.removeCartItem(cartItemId);
         Cart cart = cartService.getCartByUser(user);
+        for (int i = 0; i < cart.getCartItems().size(); i++) {
+            CartItem cartItem = cart.getCartItems().get(i);
+            if (cartItem.getId().intValue() == cartItemId.intValue()) {
+                CartItem deletedItem = cart.getCartItems().remove(i);
+                cart.setTotalAmount(cart.getTotalAmount() - deletedItem.calculateAmount());
+                break;
+            }
+        }
         return ResponseEntity.ok().body(cart);
     }
+
+//    @PatchMapping("/cart/update-item")
+//    public ResponseEntity<Cart> updateItemInCart(@RequestBody ObjectNode objectNode) {
+//        ObjectMapper mapper = new ObjectMapper();
+//        User user;
+//        Integer cartItemId, quantity;
+//        try {
+//            user = mapper.treeToValue(objectNode.get("user"), User.class);
+//            cartItemId = mapper.treeToValue(objectNode.get("cartItemId"), Integer.class);
+//            quantity = mapper.treeToValue(objectNode.get("quantity"), Integer.class);
+//        } catch (Exception e) {
+//            throw new InvalidRequestBodyException();
+//        }
+//        cartItemService.removeCartItem(cartItemId);
+//        Cart cart = cartService.getCartByUser(user);
+//        for (int i = 0; i < cart.getCartItems().size(); i++) {
+//            CartItem cartItem = cart.getCartItems().get(i);
+//            if (cartItem.getId().intValue() == cartItemId.intValue()) {
+//                CartItem deletedItem = cart.getCartItems().remove(i);
+//                cart.setTotalAmount(cart.getTotalAmount() - deletedItem.calculateAmount());
+//                break;
+//            }
+//        }
+//        return ResponseEntity.ok().body(cart);
+//    }
 }

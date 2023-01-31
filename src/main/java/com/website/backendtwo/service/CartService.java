@@ -36,7 +36,7 @@ public class CartService {
             if (product.getProductId().intValue() != cartItem.getProduct().getProductId().intValue())
                 throw new FailedRequestException("Invalid data from server");
             cartItem.setProduct(product);
-            total += cartItem.getQuantity() * product.getSellingPrice();
+            total += cartItem.calculateAmount();
         }
         cart.setTotalAmount(total);
         return cart;
