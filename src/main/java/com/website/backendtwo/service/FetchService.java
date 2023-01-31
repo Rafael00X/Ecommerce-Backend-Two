@@ -21,7 +21,7 @@ public class FetchService {
         if (ids == null || ids.size() == 0) return new ArrayList<>();
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<List<Integer>> httpEntity = new HttpEntity<>(ids, httpHeaders);
-        Product[] products = restTemplate.postForObject(URL + "/test/products", httpEntity, Product[].class);
+        Product[] products = restTemplate.postForObject(URL + "/products", httpEntity, Product[].class);
         if (products == null) throw new FailedRequestException("Failed to fetch products");
         return Arrays.asList(products);
     }

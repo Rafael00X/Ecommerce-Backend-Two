@@ -15,7 +15,7 @@ import lombok.*;
 public class CartItem {
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer cartItemId;
     @Embedded
     private Product product;
     private Integer quantity;

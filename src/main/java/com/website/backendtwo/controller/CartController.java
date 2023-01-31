@@ -57,12 +57,12 @@ public class CartController {
         } catch (Exception e) {
             throw new InvalidRequestBodyException();
         }
-        cartItemService.removeCartItem(cartItemId);
+        cartItemService.removeCartItemById(cartItemId);
         Cart cart = cartService.getCartByUser(user);
         // TODO - find alternative
         for (int i = 0; i < cart.getCartItems().size(); i++) {
             CartItem cartItem = cart.getCartItems().get(i);
-            if (cartItem.getId().intValue() == cartItemId.intValue()) {
+            if (cartItem.getCartItemId().intValue() == cartItemId.intValue()) {
                 CartItem deletedItem = cart.getCartItems().remove(i);
                 cart.setTotalAmount(cart.getTotalAmount() - deletedItem.calculateAmount());
                 break;
@@ -92,7 +92,7 @@ public class CartController {
         int totalAmount = 0;
         for (int i = 0; i < cart.getCartItems().size(); i++) {
             CartItem item = cart.getCartItems().get(i);
-            if (item.getId().intValue() == cartItemId.intValue()) {
+            if (item.getCartItemId().intValue() == cartItemId.intValue()) {
                 cart.getCartItems().get(i).setQuantity(quantity);
             }
             totalAmount += cart.getCartItems().get(i).calculateAmount();
