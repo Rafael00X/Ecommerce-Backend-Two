@@ -10,6 +10,10 @@ public class CartItemService {
     @Autowired
     private CartItemRepository repository;
 
+    public CartItem getCartItemById(Integer cartItemId) {
+        return repository.findById(cartItemId).orElse(null);
+    }
+
     public CartItem addCartItem(CartItem cartItem) {
         return repository.save(cartItem);
     }

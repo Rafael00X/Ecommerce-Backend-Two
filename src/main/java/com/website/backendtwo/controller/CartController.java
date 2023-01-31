@@ -59,6 +59,7 @@ public class CartController {
         }
         cartItemService.removeCartItem(cartItemId);
         Cart cart = cartService.getCartByUser(user);
+        // TODO - find alternative
         for (int i = 0; i < cart.getCartItems().size(); i++) {
             CartItem cartItem = cart.getCartItems().get(i);
             if (cartItem.getId().intValue() == cartItemId.intValue()) {
@@ -70,28 +71,33 @@ public class CartController {
         return ResponseEntity.ok().body(cart);
     }
 
-//    @PatchMapping("/cart/update-item")
-//    public ResponseEntity<Cart> updateItemInCart(@RequestBody ObjectNode objectNode) {
-//        ObjectMapper mapper = new ObjectMapper();
-//        User user;
-//        Integer cartItemId, quantity;
-//        try {
-//            user = mapper.treeToValue(objectNode.get("user"), User.class);
-//            cartItemId = mapper.treeToValue(objectNode.get("cartItemId"), Integer.class);
-//            quantity = mapper.treeToValue(objectNode.get("quantity"), Integer.class);
-//        } catch (Exception e) {
-//            throw new InvalidRequestBodyException();
-//        }
-//        cartItemService.removeCartItem(cartItemId);
-//        Cart cart = cartService.getCartByUser(user);
-//        for (int i = 0; i < cart.getCartItems().size(); i++) {
-//            CartItem cartItem = cart.getCartItems().get(i);
-//            if (cartItem.getId().intValue() == cartItemId.intValue()) {
-//                CartItem deletedItem = cart.getCartItems().remove(i);
-//                cart.setTotalAmount(cart.getTotalAmount() - deletedItem.calculateAmount());
-//                break;
-//            }
-//        }
-//        return ResponseEntity.ok().body(cart);
-//    }
+    @PatchMapping("/cart/update-item")
+    public ResponseEntity<Cart> updateItemInCart(@RequestBody ObjectNode objectNode) {
+        ObjectMapper mapper = new ObjectMapper();
+        User user;
+        Integer cartItemId, quantity;
+        try {
+            user = mapper.treeToValue(objectNode.get("user"), User.class);
+            cartItemId = mapper.treeToValue(objectNode.get("cartItemId"), Integer.class);
+            quantity = mapper.treeToValue(objectNode.get("quantity"), Integer.class);
+        } catch (Exception e) {
+            throw new InvalidRequestBodyException();
+        }
+        CartItem cartItem = cartItemService.getCartItemById(cartItemId);
+        if (cartItem == null) throw new RuntimeException("Could not find item in cart");
+        cartItem.setQuantity(quantity);
+        cartItemService.updateCartItem(cartItem);
+        Cart cart = cartService.getCartByUser(user);
+        // TODO - find alternative
+        int totalAmount = 0;
+        for (int i = 0; i < cart.getCartItems().size(); i++) {
+            CartItem item = cart.getCartItems().get(i);
+            if (item.getId().intValue() == cartItemId.intValue()) {
+                cart.getCartItems().get(i).setQuantity(quantity);
+            }
+            totalAmount += cart.getCartItems().get(i).calculateAmount();
+        }
+        cart.setTotalAmount(totalAmount);
+        return ResponseEntity.ok().body(cart);
+    }
 }
