@@ -15,11 +15,12 @@ import java.util.Date;
 public class OrderItem {
     @Id
     @GeneratedValue
-    private Integer id;
+    private Integer orderItemId;
     private Integer productId;
     private String productName;
-    private Integer price;
+    private Integer totalPrice;
     private Integer quantity;
+    private String imageUrl;
     @CreationTimestamp
     private Date orderDate;
     @OneToOne
