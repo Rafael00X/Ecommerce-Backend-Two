@@ -10,6 +10,7 @@ import com.website.backendtwo.exception.InvalidRequestBodyException;
 import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,5 +100,27 @@ public class CartController {
         }
         cart.setTotalAmount(totalAmount);
         return ResponseEntity.ok().body(cart);
+    }
+
+    @PostMapping("/cart/get-item")
+    public ResponseEntity<CartItem> getItemFromCart(@RequestBody ObjectNode objectNode) {
+        ObjectMapper mapper = new ObjectMapper();
+        User user;
+        Integer productId;
+        try {
+            user = mapper.treeToValue(objectNode.get("user"), User.class);
+            productId = mapper.treeToValue(objectNode.get("productId"), Integer.class);
+        } catch (Exception e) {
+            throw new InvalidRequestBodyException();
+        }
+        Cart cart = cartService.getCartByUser(user);
+        CartItem item = null;
+        for (CartItem cartItem: cart.getCartItems()) {
+            if (cartItem.getProduct().getProductId().intValue() == productId.intValue()) {
+                item = cartItem;
+                break;
+            }
+        }
+        return ResponseEntity.ok().body(item);
     }
 }
