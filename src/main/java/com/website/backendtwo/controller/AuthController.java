@@ -1,11 +1,16 @@
 package com.website.backendtwo.controller;
 
 import com.website.backendtwo.entity.User;
+import com.website.backendtwo.exception.NotAuthorizedException;
 import com.website.backendtwo.service.CartService;
 import com.website.backendtwo.service.UserService;
+import com.website.backendtwo.utility.JwtHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,6 +19,7 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private CartService cartService;
+
     @PostMapping("/register")
     public User registerUser(@RequestBody User user) {
         User newUser = userService.registerUser(user);
@@ -29,5 +35,12 @@ public class AuthController {
         User existingUser = userService.loginUser(user);
         if (existingUser != null) existingUser.setToken("user-token");
         return existingUser;
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<Void> validateUser(@RequestHeader(name = "Authorization") String jwtToken, @RequestBody User user) {
+        if (!JwtHelper.validate(jwtToken, user.getUserId()))
+            throw new NotAuthorizedException();
+        return ResponseEntity.ok().build();
     }
 }
