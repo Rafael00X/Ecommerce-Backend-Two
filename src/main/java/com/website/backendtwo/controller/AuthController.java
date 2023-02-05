@@ -9,10 +9,7 @@ import com.website.backendtwo.utility.JwtHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AuthController {
@@ -38,10 +35,9 @@ public class AuthController {
         return ResponseEntity.ok(existingUser);
     }
 
-    @PostMapping("/validate")
-    public ResponseEntity<Void> validateUser(@RequestHeader(name = "Authorization") String token, @RequestBody User user) {
-        if (!JwtHelper.validate(token, user))
-            throw new NotAuthorizedException();
-        return ResponseEntity.ok(null);
+    @GetMapping("/validate")
+    public ResponseEntity<User> validateUser(@RequestHeader(name = "Authorization") String token) {
+        User user = JwtHelper.decode(token);
+        return ResponseEntity.ok(user);
     }
 }
