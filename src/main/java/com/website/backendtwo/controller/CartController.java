@@ -10,10 +10,13 @@ import com.website.backendtwo.exception.InvalidRequestBodyException;
 import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
 import com.website.backendtwo.utility.JwtHelper;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class CartController {
@@ -42,25 +45,14 @@ public class CartController {
         return ResponseEntity.ok(null);
     }
 
-    // TODO - cartItemService.removeCartItem() not getting flushed before cartService.getCartByUser()
     @DeleteMapping("/cart/remove-item")
     public ResponseEntity<Cart> removeItemFromCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer cartItemId) {
         User user = JwtHelper.decode(token);
         cartItemService.removeCartItemById(cartItemId);
         Cart cart = cartService.getCartByUser(user);
-        // TODO - find alternative
-        for (int i = 0; i < cart.getCartItems().size(); i++) {
-            CartItem cartItem = cart.getCartItems().get(i);
-            if (cartItem.getCartItemId().intValue() == cartItemId.intValue()) {
-                CartItem deletedItem = cart.getCartItems().remove(i);
-                cart.setTotalAmount(cart.getTotalAmount() - deletedItem.calculateAmount());
-                break;
-            }
-        }
         return ResponseEntity.ok(cart);
     }
 
-    // TODO - cartItemService.updateCartItem() not getting flushed before cartService.getCartByUser()
     @PatchMapping("/cart/update-item")
     public ResponseEntity<Cart> updateItemInCart(@RequestHeader(name = "Authorization") String token, @RequestBody CartItem cartItem) {
         User user = JwtHelper.decode(token);
@@ -69,16 +61,6 @@ public class CartController {
         savedCartItem.setQuantity(cartItem.getQuantity());
         cartItemService.updateCartItem(savedCartItem);
         Cart cart = cartService.getCartByUser(user);
-        // TODO - find alternative
-        int totalAmount = 0;
-        for (int i = 0; i < cart.getCartItems().size(); i++) {
-            CartItem item = cart.getCartItems().get(i);
-            if (item.getCartItemId().intValue() == cartItem.getCartItemId().intValue()) {
-                cart.getCartItems().get(i).setQuantity(cartItem.getQuantity());
-            }
-            totalAmount += cart.getCartItems().get(i).calculateAmount();
-        }
-        cart.setTotalAmount(totalAmount);
         return ResponseEntity.ok(cart);
     }
 
@@ -86,13 +68,13 @@ public class CartController {
     public ResponseEntity<CartItem> getItemFromCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer productId) {
         User user = JwtHelper.decode(token);
         Cart cart = cartService.getCartByUser(user);
-        CartItem item = null;
-        for (CartItem cartItem: cart.getCartItems()) {
-            if (cartItem.getProduct().getProductId().intValue() == productId.intValue()) {
-                item = cartItem;
+        CartItem cartItem = null;
+        for (CartItem item: cart.getCartItems()) {
+            if (item.getProduct().getProductId().intValue() == productId.intValue()) {
+                cartItem = item;
                 break;
             }
         }
-        return ResponseEntity.ok(item);
+        return ResponseEntity.ok(cartItem);
     }
 }
