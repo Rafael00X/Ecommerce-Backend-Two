@@ -28,16 +28,20 @@ public class JwtHelper {
                 .compact();
     }
 
-    public static Jws<Claims> decode(String jwt) {
-        return Jwts.parserBuilder()
+    public static User decode(String token) {
+        String userId = Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
-                .parseClaimsJws(jwt);
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        User user = new User();
+        user.setUserId(Integer.parseInt(userId));
+        return user;
     }
 
-    public static Boolean validate(String jwt, Integer userId) {
-        Jws<Claims> result = decode(jwt);
-        Integer tokenUserId = Integer.parseInt(result.getBody().getSubject());
-        return Objects.equals(userId, tokenUserId);
+    public static Boolean validate(String token, User user) {
+        User tokenUser = decode(token);
+        return Objects.equals(user.getUserId(), tokenUser.getUserId());
     }
 }
