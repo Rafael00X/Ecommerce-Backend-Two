@@ -9,6 +9,7 @@ import com.website.backendtwo.entity.embeddable.Product;
 import com.website.backendtwo.exception.InvalidRequestBodyException;
 import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
+import com.website.backendtwo.utility.JwtHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -20,22 +21,17 @@ public class CartController {
     private CartService cartService;
     @Autowired
     private CartItemService cartItemService;
-    @PostMapping("/cart")
-    public Cart getCart(@RequestBody User user) {
-        return cartService.getCartByUser(user);
+
+    @GetMapping("/cart")
+    public ResponseEntity<Cart> getCart(@RequestHeader(name = "Authorization") String token) {
+        User user = JwtHelper.decode(token);
+        Cart cart = cartService.getCartByUser(user);
+        return ResponseEntity.ok(cart);
     }
 
     @PostMapping("/cart/add-item")
-    public ResponseEntity<Void> addItemToCart(@RequestBody ObjectNode objectNode) {
-        ObjectMapper mapper = new ObjectMapper();
-        User user;
-        Integer productId;
-        try {
-            user = mapper.treeToValue(objectNode.get("user"), User.class);
-            productId = mapper.treeToValue(objectNode.get("productId"), Integer.class);
-        } catch (Exception e) {
-            throw new InvalidRequestBodyException();
-        }
+    public ResponseEntity<Void> addItemToCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer productId) {
+        User user = JwtHelper.decode(token);
         CartItem cartItem = new CartItem();
         cartItem.setProduct(new Product());
         cartItem.getProduct().setProductId(productId);
@@ -43,21 +39,13 @@ public class CartController {
         Cart cart = cartService.getCartByUser(user);
         cartItem.setCart(cart);
         cartItemService.addCartItem(cartItem);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(null);
     }
 
     // TODO - cartItemService.removeCartItem() not getting flushed before cartService.getCartByUser()
-    @PostMapping("/cart/remove-item")
-    public ResponseEntity<Cart> removeItemFromCart(@RequestBody ObjectNode objectNode) {
-        ObjectMapper mapper = new ObjectMapper();
-        User user;
-        Integer cartItemId;
-        try {
-            user = mapper.treeToValue(objectNode.get("user"), User.class);
-            cartItemId = mapper.treeToValue(objectNode.get("cartItemId"), Integer.class);
-        } catch (Exception e) {
-            throw new InvalidRequestBodyException();
-        }
+    @DeleteMapping("/cart/remove-item")
+    public ResponseEntity<Cart> removeItemFromCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer cartItemId) {
+        User user = JwtHelper.decode(token);
         cartItemService.removeCartItemById(cartItemId);
         Cart cart = cartService.getCartByUser(user);
         // TODO - find alternative
@@ -69,50 +57,34 @@ public class CartController {
                 break;
             }
         }
-        return ResponseEntity.ok().body(cart);
+        return ResponseEntity.ok(cart);
     }
 
+    // TODO - cartItemService.updateCartItem() not getting flushed before cartService.getCartByUser()
     @PatchMapping("/cart/update-item")
-    public ResponseEntity<Cart> updateItemInCart(@RequestBody ObjectNode objectNode) {
-        ObjectMapper mapper = new ObjectMapper();
-        User user;
-        Integer cartItemId, quantity;
-        try {
-            user = mapper.treeToValue(objectNode.get("user"), User.class);
-            cartItemId = mapper.treeToValue(objectNode.get("cartItemId"), Integer.class);
-            quantity = mapper.treeToValue(objectNode.get("quantity"), Integer.class);
-        } catch (Exception e) {
-            throw new InvalidRequestBodyException();
-        }
-        CartItem cartItem = cartItemService.getCartItemById(cartItemId);
-        if (cartItem == null) throw new RuntimeException("Could not find item in cart");
-        cartItem.setQuantity(quantity);
-        cartItemService.updateCartItem(cartItem);
+    public ResponseEntity<Cart> updateItemInCart(@RequestHeader(name = "Authorization") String token, @RequestBody CartItem cartItem) {
+        User user = JwtHelper.decode(token);
+        CartItem savedCartItem = cartItemService.getCartItemById(cartItem.getCartItemId());
+        if (savedCartItem == null) throw new RuntimeException("Could not find item in cart");
+        savedCartItem.setQuantity(cartItem.getQuantity());
+        cartItemService.updateCartItem(savedCartItem);
         Cart cart = cartService.getCartByUser(user);
         // TODO - find alternative
         int totalAmount = 0;
         for (int i = 0; i < cart.getCartItems().size(); i++) {
             CartItem item = cart.getCartItems().get(i);
-            if (item.getCartItemId().intValue() == cartItemId.intValue()) {
-                cart.getCartItems().get(i).setQuantity(quantity);
+            if (item.getCartItemId().intValue() == cartItem.getCartItemId().intValue()) {
+                cart.getCartItems().get(i).setQuantity(cartItem.getQuantity());
             }
             totalAmount += cart.getCartItems().get(i).calculateAmount();
         }
         cart.setTotalAmount(totalAmount);
-        return ResponseEntity.ok().body(cart);
+        return ResponseEntity.ok(cart);
     }
 
     @PostMapping("/cart/get-item")
-    public ResponseEntity<CartItem> getItemFromCart(@RequestBody ObjectNode objectNode) {
-        ObjectMapper mapper = new ObjectMapper();
-        User user;
-        Integer productId;
-        try {
-            user = mapper.treeToValue(objectNode.get("user"), User.class);
-            productId = mapper.treeToValue(objectNode.get("productId"), Integer.class);
-        } catch (Exception e) {
-            throw new InvalidRequestBodyException();
-        }
+    public ResponseEntity<CartItem> getItemFromCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer productId) {
+        User user = JwtHelper.decode(token);
         Cart cart = cartService.getCartByUser(user);
         CartItem item = null;
         for (CartItem cartItem: cart.getCartItems()) {
@@ -121,6 +93,6 @@ public class CartController {
                 break;
             }
         }
-        return ResponseEntity.ok().body(item);
+        return ResponseEntity.ok(item);
     }
 }
