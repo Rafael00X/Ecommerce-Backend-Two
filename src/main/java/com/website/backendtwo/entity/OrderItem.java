@@ -23,6 +23,6 @@ public class OrderItem {
     private String imageUrl;
     @CreationTimestamp
     private Date orderDate;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private User user;
 }
