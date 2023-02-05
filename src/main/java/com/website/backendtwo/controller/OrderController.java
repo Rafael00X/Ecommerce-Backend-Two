@@ -7,29 +7,32 @@ import com.website.backendtwo.entity.User;
 import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
 import com.website.backendtwo.service.OrderItemService;
+import com.website.backendtwo.utility.JwtHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
 public class OrderController {
     @Autowired
-    private OrderItemService orderItemService;
-    @Autowired
     private CartService cartService;
     @Autowired
     private CartItemService cartItemService;
-    @PostMapping("/orders")
-    public List<OrderItem> getOrders(@RequestBody User user) {
-        return orderItemService.getOrdersOfUser(user);
+    @Autowired
+    private OrderItemService orderItemService;
+
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderItem>> getOrders(@RequestHeader(name = "Authorization") String token) {
+        User user = JwtHelper.decode(token);
+        List<OrderItem> orders = orderItemService.getOrdersOfUser(user);
+        return ResponseEntity.ok(orders);
     }
 
     @PostMapping("/orders/add-orders")
-    public ResponseEntity<Void> addOrders(@RequestBody User user) {
+    public ResponseEntity<Void> addOrders(@RequestHeader(name = "Authorization") String token) {
+        User user = JwtHelper.decode(token);
         Cart cart = cartService.getCartByUser(user);
         List<OrderItem> orderItems = new ArrayList<>();
         List<Integer> cartItemIds = new ArrayList<>();
@@ -46,6 +49,6 @@ public class OrderController {
         }
         orderItemService.addOrdersOfUser(orderItems);
         cartItemService.removeCartItemsById(cartItemIds);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(null);
     }
 }
