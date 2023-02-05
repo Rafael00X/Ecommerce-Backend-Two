@@ -19,7 +19,7 @@ public class CartItem {
     @Embedded
     private Product product;
     private Integer quantity;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JsonBackReference
     private Cart cart;
 

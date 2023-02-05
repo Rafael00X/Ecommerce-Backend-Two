@@ -16,7 +16,7 @@ public class Cart {
     @Id
     @GeneratedValue
     private Integer cartId;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private User user;
     @OneToMany(mappedBy = "cart")
     @JsonManagedReference
