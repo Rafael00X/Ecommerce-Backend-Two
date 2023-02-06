@@ -6,8 +6,8 @@ import com.website.backendtwo.entity.OrderItem;
 import com.website.backendtwo.entity.User;
 import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
+import com.website.backendtwo.service.JwtService;
 import com.website.backendtwo.service.OrderItemService;
-import com.website.backendtwo.utility.JwtHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,17 +22,19 @@ public class OrderController {
     private CartItemService cartItemService;
     @Autowired
     private OrderItemService orderItemService;
+    @Autowired
+    private JwtService jwtService;
 
     @GetMapping("/orders")
     public ResponseEntity<List<OrderItem>> getOrders(@RequestHeader(name = "Authorization") String token) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         List<OrderItem> orders = orderItemService.getOrdersOfUser(user);
         return ResponseEntity.ok(orders);
     }
 
     @PostMapping("/orders/add-orders")
     public ResponseEntity<Void> addOrders(@RequestHeader(name = "Authorization") String token) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         Cart cart = cartService.getCartByUser(user);
         List<OrderItem> orderItems = new ArrayList<>();
         List<Integer> cartItemIds = new ArrayList<>();

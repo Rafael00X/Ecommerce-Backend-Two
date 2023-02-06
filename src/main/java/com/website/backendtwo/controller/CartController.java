@@ -1,22 +1,15 @@
 package com.website.backendtwo.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.website.backendtwo.entity.Cart;
 import com.website.backendtwo.entity.CartItem;
 import com.website.backendtwo.entity.User;
 import com.website.backendtwo.entity.embeddable.Product;
-import com.website.backendtwo.exception.InvalidRequestBodyException;
 import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
-import com.website.backendtwo.utility.JwtHelper;
-import jakarta.transaction.Transactional;
+import com.website.backendtwo.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class CartController {
@@ -24,17 +17,19 @@ public class CartController {
     private CartService cartService;
     @Autowired
     private CartItemService cartItemService;
+    @Autowired
+    private JwtService jwtService;
 
     @GetMapping("/cart")
     public ResponseEntity<Cart> getCart(@RequestHeader(name = "Authorization") String token) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         Cart cart = cartService.getCartByUser(user);
         return ResponseEntity.ok(cart);
     }
 
     @PostMapping("/cart/add-item")
     public ResponseEntity<Void> addItemToCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer productId) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         CartItem cartItem = new CartItem();
         cartItem.setProduct(new Product());
         cartItem.getProduct().setProductId(productId);
@@ -47,7 +42,7 @@ public class CartController {
 
     @DeleteMapping("/cart/remove-item")
     public ResponseEntity<Cart> removeItemFromCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer cartItemId) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         cartItemService.removeCartItemById(cartItemId);
         Cart cart = cartService.getCartByUser(user);
         return ResponseEntity.ok(cart);
@@ -55,7 +50,7 @@ public class CartController {
 
     @PatchMapping("/cart/update-item")
     public ResponseEntity<Cart> updateItemInCart(@RequestHeader(name = "Authorization") String token, @RequestBody CartItem cartItem) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         CartItem savedCartItem = cartItemService.getCartItemById(cartItem.getCartItemId());
         if (savedCartItem == null) throw new RuntimeException("Could not find item in cart");
         savedCartItem.setQuantity(cartItem.getQuantity());
@@ -66,7 +61,7 @@ public class CartController {
 
     @PostMapping("/cart/get-item")
     public ResponseEntity<CartItem> getItemFromCart(@RequestHeader(name = "Authorization") String token, @RequestBody Integer productId) {
-        User user = JwtHelper.decode(token);
+        User user = jwtService.decode(token);
         Cart cart = cartService.getCartByUser(user);
         CartItem cartItem = null;
         for (CartItem item: cart.getCartItems()) {
