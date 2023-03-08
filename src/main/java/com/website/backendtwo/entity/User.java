@@ -13,13 +13,14 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue
     private Integer userId;
     private String userName;
-    private String password;
     private String email;
+    private String password;
     @Transient
     private String token;
 }
