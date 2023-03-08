@@ -6,6 +6,7 @@ import com.website.backendtwo.entity.User;
 import com.website.backendtwo.entity.embeddable.Product;
 import com.website.backendtwo.exception.FailedRequestException;
 import com.website.backendtwo.repository.CartRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CartService {
     @Autowired
     private CartRepository repository;
@@ -44,11 +46,6 @@ public class CartService {
 
     public Cart getCartByUser(User user) {
         Cart cart = repository.findByUser(user).orElse(null);
-        return initializeCart(cart);
-    }
-
-    public Cart getCartById(Integer cartId) {
-        Cart cart = repository.findById(cartId).orElse(null);
         return initializeCart(cart);
     }
 
