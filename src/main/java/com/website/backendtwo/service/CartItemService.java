@@ -1,14 +1,15 @@
 package com.website.backendtwo.service;
 
 import com.website.backendtwo.entity.CartItem;
-import com.website.backendtwo.entity.User;
 import com.website.backendtwo.repository.CartItemRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CartItemService {
     @Autowired
     private CartItemRepository repository;
