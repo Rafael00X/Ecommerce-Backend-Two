@@ -5,11 +5,13 @@ import com.website.backendtwo.exception.FailedRequestException;
 import com.website.backendtwo.service.CartService;
 import com.website.backendtwo.service.JwtService;
 import com.website.backendtwo.service.UserService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@AllArgsConstructor
 public class AuthController {
     @Autowired
     private UserService userService;
