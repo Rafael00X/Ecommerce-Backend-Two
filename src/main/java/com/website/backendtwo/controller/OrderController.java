@@ -8,6 +8,7 @@ import com.website.backendtwo.service.CartItemService;
 import com.website.backendtwo.service.CartService;
 import com.website.backendtwo.service.JwtService;
 import com.website.backendtwo.service.OrderItemService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
+@AllArgsConstructor
 public class OrderController {
     @Autowired
     private CartService cartService;
